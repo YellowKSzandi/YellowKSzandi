@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSES 2064 – Helyes zárójelezések száma | Sárga-Kiss Alexandra</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand">
+      <h1>Sárga-Kiss Alexandra</h1>
+      <small>Problémamegoldó szeminárium</small>
+    </div>
+    <nav class="menu">
+      <a class="" href="index.html">Főoldal</a>
+      <a class="" href="rendezeses.html">Rendezéses</a>
+      <a class="" href="graf.html">Gráf</a>
+      <a class="active" href="dp.html">Dinamikus</a>
+      <a class="" href="rekurzio.html">Rekurzió</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>CSES 2064 – Bracket Sequences I</h2>
+    <p class="meta">Dinamikus programozás – Catalan-szám (mod 1e9+7)</p>
+    <p>
+      <a class="button" href="https://cses.fi/problemset/task/2064" target="_blank" rel="noopener">Feladat leírása</a>
+      <a class="button" href="h:\Tanulmányok\2026-26. I. félév inf\L Problémamegoldó szeminárium\Bracket Sequences I.py" download>Letöltés (.py)</a>
+      <a class="button secondary" href="index.html">Vissza a főoldalra</a>
+    </p>
+    <pre><code># CSES 2064 - Helyes zárójelezések száma
+# A feladat: hány különböző helyes zárójelezést alkothatunk n zárójellel.
+# Ez a híres Catalan-szám: C_k = (1 / (k + 1)) * (2k alatt k)
+# Csak páros n esetén értelmezett (n = 2 * k).
+# dinamikus programozás
+
+MOD = 10**9 + 7
+
+def main():
+    n = int(input())
+
+    # Ha n páratlan, nem alkotható helyes zárójelezés
+    if n % 2 == 1:
+        print(0)
+        return
+
+    k = n // 2
+    max_ertek = 2 * k
+
+    # Faktoriálisok és inverzek előállítása 1..max_ertek tartományban
+    faktorialis = [1] * (max_ertek + 1)
+    inverz = [0] * (max_ertek + 1)
+    inverz[1] = 1  # 1 inverze mindig 1
+
+    # Inverzek kiszámítása lineárisan (Fermat-tétel nélkül)
+    for i in range(2, max_ertek + 1):
+        inverz[i] = MOD - (MOD // i) * inverz[MOD % i] % MOD
+
+    # Inverz faktoriálisok előállítása
+    inverz_faktorialis = [1] * (max_ertek + 1)
+    for i in range(1, max_ertek + 1):
+        faktorialis[i] = faktorialis[i - 1] * i % MOD
+        inverz_faktorialis[i] = inverz_faktorialis[i - 1] * inverz[i] % MOD
+
+    # Binomiális együttható: (2k alatt k)
+    kombinacio = (
+        faktorialis[2 * k] *
+        inverz_faktorialis[k] % MOD *
+        inverz_faktorialis[k] % MOD
+    )
+
+    # Catalan-szám: (kombinacio / (k + 1))
+    catalan = kombinacio * inverz[k + 1] % MOD
+
+    print(catalan)
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+  </section>
+  <footer>© Sárga-Kiss Alexandra · Problémamegoldó szeminárium · 2025</footer>
+</main>
+</body>
+</html>

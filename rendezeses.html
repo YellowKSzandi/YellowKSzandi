@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSES 3420 – Különböző értékű résztömbök száma | Sárga-Kiss Alexandra</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand">
+      <h1>Sárga-Kiss Alexandra</h1>
+      <small>Problémamegoldó szeminárium</small>
+    </div>
+    <nav class="menu">
+      <a class="" href="index.html">Főoldal</a>
+      <a class="active" href="rendezeses.html">Rendezéses</a>
+      <a class="" href="graf.html">Gráf</a>
+      <a class="" href="dp.html">Dinamikus</a>
+      <a class="" href="rekurzio.html">Rekurzió</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>CSES 3420 – Distinct Values Subarrays</h2>
+    <p class="meta">Rendezéses / algoritmikus – sliding window</p>
+    <p>
+      <a class="button" href="https://cses.fi/problemset/task/3420" target="_blank" rel="noopener">Feladat leírása</a>
+      <a class="button" href="h:\Tanulmányok\2026-26. I. félév inf\L Problémamegoldó szeminárium\Distinct Values Subarrays.py" download>Letöltés (.py)</a>
+      <a class="button secondary" href="index.html">Vissza a főoldalra</a>
+    </p>
+    <pre><code># CSES 3420 - Distinct Values Subarrays
+# Sliding window (csúszó ablak) megoldás:
+# minden lépésben annyival bővítjük a résztömbök számát, ahány új egyedi elemet tartalmaz.
+# rendezéses
+
+import sys
+
+def main():
+    adatok = list(map(int, sys.stdin.read().strip().split()))
+    if not adatok:
+        return
+
+    n = adatok[0]      # elemek száma
+    tomb = adatok[1:]  # maga a lista
+
+    utolso = {}         # elem -&gt; utolsó előfordulás indexe
+    bal = 0             # ablak bal széle
+    osszeg = 0          # különböző értékű résztömbök száma
+
+    for jobb, ertek in enumerate(tomb):
+        # Ha ez az elem már szerepelt az aktuális ablakban, toljuk a bal szélét tovább
+        if ertek in utolso and utolso[ertek] &gt;= bal:
+            bal = utolso[ertek] + 1
+
+        utolso[ertek] = jobb
+        # Minden új pozícióval annyi új egyedi résztömb keletkezik, ahány hosszú az ablak
+        osszeg += jobb - bal + 1
+
+    print(osszeg)
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+  </section>
+  <footer>© Sárga-Kiss Alexandra · Problémamegoldó szeminárium · 2025</footer>
+</main>
+</body>
+</html>
