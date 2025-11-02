@@ -33,12 +33,11 @@
       <a class="button" href="py/graf_cses_1202.py" download="graf_cses_1202.py">Letöltés (.py)</a>
       <a class="button secondary" href="index.html">Vissza a főoldalra</a>
     </p>
+
     <pre><code># CSES 1202 - Investigation
 # Feladat: legrövidebb utak hossza, darabszáma (mod 1e9+7),
 # valamint a legrövidebb utak minimum és maximum él-száma.
-
 # Megoldás: Dijkstra algoritmus kiegészítve útszámlálással.
-# gráf
 
 import sys
 import heapq
@@ -49,19 +48,17 @@ def main():
     n = int(next(it))  # csúcsok száma
     m = int(next(it))  # élek száma
 
-    # Szomszédsági lista: (szomszéd, súly)
+    # Irányított, súlyozott gráf szomszédsági listája: (szomszéd, súly)
     szomszedok = [[] for _ in range(n + 1)]
     for _ in range(m):
-        a = int(next(it))
-        b = int(next(it))
-        suly = int(next(it))
+        a = int(next(it)); b = int(next(it)); suly = int(next(it))
         szomszedok[a].append((b, suly))
 
     VEGTELEN = 10**19
     MOD = 10**9 + 7
 
-    tav = [VEGTELEN] * (n + 1)  # legrövidebb távolság
-    utak_szama = [0] * (n + 1)  # hány legrövidebb út vezet ide
+    tav = [VEGTELEN] * (n + 1)   # legrövidebb távolság
+    utak_szama = [0] * (n + 1)   # hány legrövidebb út vezet ide (mod MOD)
     min_el = [10**18] * (n + 1)  # legrövidebb úton minimum él-szám
     max_el = [-10**18] * (n + 1) # legrövidebb úton maximum él-szám
 
@@ -71,26 +68,24 @@ def main():
     min_el[1] = 0
     max_el[1] = 0
 
-    # Prioritási sor (min-heap)
-    sor = [(0, 1)]  # (aktuális_távolság, csúcs)
+    # Prioritási sor (min-heap) a (távolság, csúcs) párokkal
+    sor = [(0, 1)]
 
     while sor:
         akt_tav, u = heapq.heappop(sor)
         if akt_tav != tav[u]:
-            continue  # már jobb értéket találtunk korábban
+            continue  # elavult bejegyzés
 
         for v, suly in szomszedok[u]:
             uj_tav = akt_tav + suly
 
-            # Jobb (rövidebb) út találtunk
-            if uj_tav &lt; tav[v]:
+            if uj_tav < tav[v]:
                 tav[v] = uj_tav
                 utak_szama[v] = utak_szama[u]
                 min_el[v] = min_el[u] + 1
                 max_el[v] = max_el[u] + 1
                 heapq.heappush(sor, (uj_tav, v))
 
-            # Ugyanilyen hosszú út — bővítjük a kombinációkat
             elif uj_tav == tav[v]:
                 utak_szama[v] = (utak_szama[v] + utak_szama[u]) % MOD
                 min_el[v] = min(min_el[v], min_el[u] + 1)
@@ -99,11 +94,112 @@ def main():
     # Eredmény: a célcsúcs (n) értékei
     print(tav[n], utak_szama[n] % MOD, min_el[n], max_el[n])
 
-if __name__ == &quot;__main__&quot;:
+if __name__ == "__main__":
     main()
 </code></pre>
+
+    <!-- MAGYARÁZAT BLOKK -->
+    <section class="explain" id="magyrazat">
+      <div class="tags">
+        <span class="badge">Dijkstra</span>
+        <span class="badge">Útszámlálás</span>
+        <span class="badge">Min/Max él</span>
+      </div>
+
+      <h3>Magyarázat</h3>
+      <p>
+        A feladat a <strong>legrövidebb utak</strong> gyűjtése 1→n között: (1) a távolság,
+        (2) hány legrövidebb út van (mod 1e9+7), (3) az ilyen utak <em>min</em> és <em>max</em> él-száma.
+        Pozitív súlyok mellett a <strong>Dijkstra</strong> algoritmus működik; a relaxáláskor extra állapotokat vezetünk.
+      </p>
+
+      <h4 id="lepesek">Lépések</h4>
+      <details open>
+        <summary><strong>I. Állapotok</strong> – mit tartunk nyilván minden csúcsra?</summary>
+        <div class="step">
+          <ul>
+            <li><code>tav[v]</code> – legrövidebb ismert távolság 1→v</li>
+            <li><code>utak_szama[v]</code> – legrövidebb utak száma 1→v (mod 1e9+7)</li>
+            <li><code>min_el[v]</code> – a legrövidebb utak közül a legkevesebb élt használó</li>
+            <li><code>max_el[v]</code> – a legrövidebb utak közül a legtöbb élt használó</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>II. Relaxálás</strong> – három esettel</summary>
+        <div class="step">
+          <pre><code>uj_tav = tav[u] + w(u,v)
+
+ha uj_tav < tav[v]:
+    tav[v] = uj_tav
+    utak_szama[v] = utak_szama[u]
+    min_el[v] = min_el[u] + 1
+    max_el[v] = max_el[u] + 1
+    betesszük a heap-be
+
+ha uj_tav == tav[v]:
+    utak_szama[v] = (utak_szama[v] + utak_szama[u]) % MOD
+    min_el[v] = min(min_el[v], min_el[u] + 1)
+    max_el[v] = max(max_el[v], max_el[u] + 1)</code></pre>
+          <p>
+            Egyenlő távolságnál nem jobb az út, de <em>új kombinációkat</em> adhat, és módosíthatja a min/max élszámot.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>III. Heap és elavult csomagok</strong></summary>
+        <div class="step">
+          <p>
+            A <code>(akt_tav != tav[u])</code> ellenőrzéssel kihagyjuk a korábban betolt,
+            de időközben „túlhaladott” állapotokat (klasszikus Dijkstra-trükk).
+          </p>
+        </div>
+      </details>
+
+      <h4 id="pelda">Mini példa</h4>
+      <div class="step">
+        <pre><code>1 →(2)→ 2 →(2)→ 4
+1 →(1)→ 3 →(3)→ 4
+Legrövidebb távolság 1→4: 4
+Utak száma: 2 (1-2-4 és 1-3-4)
+min él: 2, max él: 2 (itt azonos)</code></pre>
+      </div>
+
+      <h4 id="helyesseg">Helyesség vázlat</h4>
+      <div class="step">
+        <p>
+          Dijkstra biztosítja, hogy amikor egy csúcs távolsága végleges, az valóban
+          a minimális. Az egyenlő távolságú relaxálások csak az 1→u legrövidebb
+          utak kombinációit öröklik tovább v-be, ezért <code>utak_szama</code> helyes.
+          A <code>min_el</code>/<code>max_el</code> frissítések azonos hosszú utak között
+          a szélső élszámokat követik.
+        </p>
+      </div>
+
+      <h4 id="komplexitas">Idő- és tárkomplexitás</h4>
+      <p>
+        <strong>Idő:</strong> O((n + m) log n) bináris kupaccal. 
+        <strong>Tár:</strong> O(n + m) a szomszédsági listára és a vektorokra.
+      </p>
+
+      <h4 id="megjegyzesek">Megjegyzések / edge case-ek</h4>
+      <ul>
+        <li>A feladatban a súlyok nemnegatívak → Dijkstra alkalmazható.</li>
+        <li>Ha nincs út 1→n, a fenti kód <code>VEGTELEN</code>-t és extrém min/max értékeket adna vissza;
+            a CSES tesztjei jellemzően biztosítják a létező utat.</li>
+        <li>Az élek irányítottak (repülőjáratok modellje); ha kétirányú kellene, mindkét irányban fel kell venni.</li>
+      </ul>
+    </section>
+    <!-- /MAGYARÁZAT BLOKK -->
   </section>
+
   <footer>© Sárga-Kiss Alexandra · Problémamegoldó szeminárium · 2025</footer>
 </main>
+
+<!-- Tartalomjegyzék generálás -->
+<script src="explain.js"></script>
+
 </body>
 </html>
