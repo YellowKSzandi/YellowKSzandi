@@ -37,3 +37,23 @@ pre{background:var(--code-bg);border:1px solid var(--code-border);border-radius:
 footer{margin-top:28px;text-align:center;color:var(--muted)}
 .badge{display:inline-block;padding:3px 10px;border-radius:999px;background:#f0e2ce;color:var(--accent);border:1px solid var(--border);font-weight:600;font-size:12px;letter-spacing:.3px}
 .meta{color:var(--muted);font-size:13px}
+.explain {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  margin: 1.25rem 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+.explain h3 { margin-top: 0.25rem; }
+.explain .tags { font-size: .875rem; opacity: .8; margin-bottom: .5rem; }
+.explain .toc { margin: .5rem 0 1rem; padding-left: 1rem; }
+.explain details { margin: .5rem 0; }
+.explain .step {
+  border: 1px dashed #e5e7eb; border-radius: 10px; padding: .75rem; margin: .5rem 0;
+}
+.explain code, .explain pre { background:#0b1020; color:#e6edf3; border-radius:8px; }
+.badge {
+  display:inline-block; font-size:.75rem; padding:.2rem .5rem; border-radius:999px;
+  background:#eef2ff; color:#3730a3; margin-right:.4rem;
+}
