@@ -27,17 +27,18 @@
 <main>
   <section class="card">
     <h2>CSES 2064 – Bracket Sequences I</h2>
-    <p class="meta">Dinamikus programozás – Catalan-szám (mod 1e9+7)</p>
+    <p class="meta">Dinamikus programozás / Kombinatorika – Catalan-szám (mod 1e9+7)</p>
     <p>
       <a class="button" href="https://cses.fi/problemset/task/2064" target="_blank" rel="noopener">Feladat leírása</a>
       <a class="button" href="py/dp_cses_2064.py" download="dp_cses_2064.py">Letöltés (.py)</a>
       <a class="button secondary" href="index.html">Vissza a főoldalra</a>
     </p>
+
     <pre><code># CSES 2064 - Helyes zárójelezések száma
 # A feladat: hány különböző helyes zárójelezést alkothatunk n zárójellel.
-# Ez a híres Catalan-szám: C_k = (1 / (k + 1)) * (2k alatt k)
+# Ez a híres Catalan-szám: C_k = (1 / (k + 1)) * binom(2k, k)
 # Csak páros n esetén értelmezett (n = 2 * k).
-# dinamikus programozás
+# dinamikus programozás / kombinatorika
 
 MOD = 10**9 + 7
 
@@ -52,12 +53,13 @@ def main():
     k = n // 2
     max_ertek = 2 * k
 
-    # Faktoriálisok és inverzek előállítása 1..max_ertek tartományban
+    # Faktoriálisok és inverzek előállítása 0..max_ertek tartományban
     faktorialis = [1] * (max_ertek + 1)
     inverz = [0] * (max_ertek + 1)
-    inverz[1] = 1  # 1 inverze mindig 1
+    inverz[1] = 1  # 1 inverze 1
 
-    # Inverzek kiszámítása lineárisan (Fermat-tétel nélkül)
+    # Inverzek kiszámítása lineárisan (Fermat nélkül):
+    # inv[i] = MOD - (MOD//i) * inv[MOD % i] % MOD
     for i in range(2, max_ertek + 1):
         inverz[i] = MOD - (MOD // i) * inverz[MOD % i] % MOD
 
@@ -67,23 +69,111 @@ def main():
         faktorialis[i] = faktorialis[i - 1] * i % MOD
         inverz_faktorialis[i] = inverz_faktorialis[i - 1] * inverz[i] % MOD
 
-    # Binomiális együttható: (2k alatt k)
+    # Binomiális együttható: binom(2k, k)
     kombinacio = (
         faktorialis[2 * k] *
         inverz_faktorialis[k] % MOD *
         inverz_faktorialis[k] % MOD
     )
 
-    # Catalan-szám: (kombinacio / (k + 1))
+    # Catalan-szám: binom(2k,k) / (k + 1)
     catalan = kombinacio * inverz[k + 1] % MOD
 
     print(catalan)
 
-if __name__ == &quot;__main__&quot;:
+if __name__ == "__main__":
     main()
 </code></pre>
+
+    <!-- MAGYARÁZAT BLOKK -->
+    <section class="explain" id="magyrazat">
+      <div class="tags">
+        <span class="badge">DP</span>
+        <span class="badge">Kombinatorika</span>
+        <span class="badge">Catalan</span>
+      </div>
+
+      <h3>Magyarázat</h3>
+      <p>
+        A helyes zárójelezések száma <strong>Catalan-szám</strong>. Ha <code>n</code> a zárójelek teljes száma és
+        <code>n = 2k</code>, akkor
+        <code>C_k = binom(2k, k) / (k + 1)</code>. Páratlan <code>n</code>-re az eredmény 0.
+      </p>
+
+      <h4 id="lepesek">Lépések</h4>
+      <details open>
+        <summary><strong>I. Redukció</strong> – miért Catalan?</summary>
+        <div class="step">
+          <p>
+            A helyes zárójelezések a Dyck-sétákkal ekvivalensek: sosem mehetünk negatív „mélységbe”.
+            Ismert, hogy ezek száma <code>C_k</code>, ahol <code>k = n/2</code>.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>II. Zárt képlet</strong> – <code>C_k = binom(2k,k)/(k+1)</code></summary>
+        <div class="step">
+          <p>
+            A <code>binom(2k,k)</code> adja a nyitó/záró pozíciók összes permutációját, a
+            <code>/(k+1)</code> tényező a „sosem negatív” korlátozás korrekciója (Ballot/Reflection elv).
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>III. Számolás modban</strong> – faktoriálisok + inverzek</summary>
+        <div class="step">
+          <ul>
+            <li>Előállítjuk <code>fact[i] = i!</code> és <code>inv[i]</code> értékeket 0..2k-ig.</li>
+            <li><code>inv[i]</code> lineárisan: <code>inv[i] = MOD - (MOD//i)*inv[MOD%i] % MOD</code>.</li>
+            <li><code>invfact[i]</code> a prefix-szorzásból: <code>invfact[i] = invfact[i-1] * inv[i]</code>.</li>
+            <li>Így <code>binom(2k,k) = fact[2k] * invfact[k]^2</code> (mod).</li>
+            <li>Végül <code>catalan = binom(2k,k) * inv[k+1]</code>.</li>
+          </ul>
+        </div>
+      </details>
+
+      <h4 id="pelda">Példák</h4>
+      <div class="step">
+        <pre><code>n=0 → k=0 → C0=1
+n=2 → k=1 → C1=1     : ()
+n=4 → k=2 → C2=2     : (()) , ()()
+n=6 → k=3 → C3=5
+n=3 (páratlan) → 0</code></pre>
+      </div>
+
+      <h4 id="helyesseg">Helyesség vázlat</h4>
+      <div class="step">
+        <p>
+          A kombinatorikus ekvivalencia (Dyck-séták) biztosítja, hogy az eredmény a Catalan-képlet.
+          A moduláris implementáció a standard binomiális képletre támaszkodik, a lineáris inverz-képzés
+          pedig bizonyíthatóan helyes prím MOD esetén (itt 1e9+7).
+          Az osztás <code>(k+1)</code>-gyel a moduláris inverzén keresztül zajlik.
+        </p>
+      </div>
+
+      <h4 id="komplexitas">Idő- és tárkomplexitás</h4>
+      <p>
+        <strong>Idő:</strong> O(n) az előállítások miatt (n=2k). 
+        <strong>Tár:</strong> O(n) a három tömbre.
+      </p>
+
+      <h4 id="tippek">Tippek / gyakori hibák</h4>
+      <ul>
+        <li>Ha <code>n</code> páratlan → azonnal <code>0</code>.</li>
+        <li>Ügyelj, hogy minden művelet modban történjen (szorzásoknál is).</li>
+        <li>Nagy <code>n</code>-re a faktoriálisok előállítása egyszer fut le; több lekérdezéshez érdemes cache-elni.</li>
+      </ul>
+    </section>
+    <!-- /MAGYARÁZAT BLOKK -->
   </section>
+
   <footer>© Sárga-Kiss Alexandra · Problémamegoldó szeminárium · 2025</footer>
 </main>
+
+<!-- Tartalomjegyzék generálás -->
+<script src="explain.js"></script>
+
 </body>
 </html>
