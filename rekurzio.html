@@ -33,8 +33,9 @@
       <a class="button" href="py/rekurzio_cses_1624.py" download="rekurzio_cses_1624.py">Letöltés (.py)</a>
       <a class="button secondary" href="index.html">Vissza a főoldalra</a>
     </p>
+
     <pre><code># CSES 1624 - Chessboard and Queens
-# Feladat: 8×8-as táblán (&#x27;.&#x27; = üres, &#x27;*&#x27; = tiltott) helyezzünk el 8 királynőt úgy,
+# Feladat: 8×8-as táblán ('.' = üres, '*' = tiltott) helyezzünk el 8 királynőt úgy,
 # hogy ne üssék egymást, és ne kerüljön tiltott mezőre. Adjuk meg a megoldások számát.
 # rekurzió
 
@@ -59,7 +60,7 @@ def main():
 
         # Próbáljuk végig a lehetséges oszlopokat az aktuális sorban
         for oszlop in range(8):
-            if tabla[sor][oszlop] == &#x27;*&#x27;:
+            if tabla[sor][oszlop] == '*':
                 continue  # tiltott mező
 
             fo = sor + oszlop
@@ -83,11 +84,115 @@ def main():
     rekurzio(0)
     print(megoldasok)
 
-if __name__ == &quot;__main__&quot;:
+if __name__ == "__main__":
     main()
 </code></pre>
+
+    <!-- MAGYARÁZAT BLOKK -->
+    <section class="explain" id="magyrazat">
+      <div class="tags">
+        <span class="badge">Backtracking</span>
+        <span class="badge">Rekurzió</span>
+        <span class="badge">N Queens</span>
+      </div>
+
+      <h3>Magyarázat</h3>
+      <p>
+        A feladat az ismert „<strong>8 királynő problémára</strong>” épül, annyi kiegészítéssel,
+        hogy bizonyos mezők tiltottak (<code>*</code>), ide nem helyezhető királynő.
+        A cél: megszámolni, hány érvényes elhelyezés létezik.
+      </p>
+
+      <h4 id="lepesek">Lépések</h4>
+      <details open>
+        <summary><strong>I. Állapot és adatszerkezetek</strong></summary>
+        <div class="step">
+          <ul>
+            <li><code>sor</code> – épp melyik sorba próbálunk királynőt tenni</li>
+            <li><code>foglalt_oszlopok</code> – már használt oszlopok</li>
+            <li><code>foglalt_foatlo</code> – sor+oszlop azonosítók (↘ irány)</li>
+            <li><code>foglalt_mellekat</code> – sor−oszlop azonosítók (↙ irány)</li>
+          </ul>
+          <p>Ezek alapján gyorsan eldönthető, ütközne-e egy új királynő korábbival.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>II. Rekurzív lépés</strong></summary>
+        <div class="step">
+          <p>
+            A <code>rekurzio(sor)</code> függvény megpróbálja az aktuális sorban minden
+            lehetséges oszlopba letenni a királynőt, amely nem tiltott és nem ütközik
+            korábbival. Ha sikerült, meghívja önmagát a következő sorra.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>III. Backtracking</strong></summary>
+        <div class="step">
+          <p>
+            Miután egy sor összes lehetőségét kipróbáltuk, a királynőt „levesszük” (eltávolítjuk
+            az oszlopból és átlókból), hogy új kombinációt kereshessünk.
+            Ez biztosítja, hogy minden érvényes elrendezés bejárásra kerül.
+          </p>
+        </div>
+      </details>
+
+      <details>
+        <summary><strong>IV. Alapeset</strong></summary>
+        <div class="step">
+          <p>
+            Ha a <code>sor == 8</code>, sikerült mind a 8 királynőt elhelyezni → egy teljes megoldás,
+            növeljük a számlálót (<code>megoldasok += 1</code>).
+          </p>
+        </div>
+      </details>
+
+      <h4 id="pelda">Példa működésre (rövidített)</h4>
+      <div class="step">
+        <pre><code>Sor 0 → kipróbáljuk oszlop 0..7
+  pl. oszlop 0 → mehet → tovább sor 1
+Sor 1 → oszlop 2 → mehet → tovább sor 2
+...
+ha elakadunk, visszalépünk egy szinttel (backtrack)
+</code></pre>
+        <p>
+          Így az algoritmus bejárja az összes lehetséges királynő-elhelyezést,
+          kizárva az ütközéseket és a tiltott mezőket.
+        </p>
+      </div>
+
+      <h4 id="helyesseg">Helyesség</h4>
+      <div class="step">
+        <p>
+          Minden rekurzív hívás egyértelműen egy sorért felel, és csak olyan lépéseket tesz,
+          ahol a korábbi sorok királynői nem ütik egymást. A visszalépés biztosítja,
+          hogy minden érvényes konfigurációt számba veszünk pontosan egyszer.
+        </p>
+      </div>
+
+      <h4 id="komplexitas">Idő- és tárkomplexitás</h4>
+      <p>
+        <strong>Idő:</strong> legfeljebb O(8!) ≈ 40320 lehetőség, de a korai kizárások miatt sokkal kevesebb.
+        <strong>Tár:</strong> O(8) a rekurzió mélysége és a három halmaz miatt.
+      </p>
+
+      <h4 id="tippek">Tippek</h4>
+      <ul>
+        <li>Az átlók azonosítása <code>sor + oszlop</code> és <code>sor - oszlop</code> formában a klasszikus trükk.</li>
+        <li>Ez az elv bármilyen N×N táblára kiterjeszthető, nem csak 8×8-ra.</li>
+        <li>Tiltott mezők esetén egyszerűen <code>continue</code>-val átugorjuk a mezőt.</li>
+      </ul>
+    </section>
+    <!-- /MAGYARÁZAT BLOKK -->
   </section>
+
   <footer>© Sárga-Kiss Alexandra · Problémamegoldó szeminárium · 2025</footer>
 </main>
+
+<!-- Tartalomjegyzék generálás -->
+<script src="explain.js"></script>
+
 </body>
 </html>
